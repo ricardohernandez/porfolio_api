@@ -10,6 +10,7 @@ import authRoutes from './src/routes/auth.routes.js';
 import contactsRoutes from './src/routes/contacts.routes.js';
 import slidersRoutes from './src/routes/sliders.routes.js';
 import portfolioRoutes from './src/routes/portfolio.routes.js';
+import skillsRoutes from './src/routes/skills.js';
 
 // Import middleware
 import { errorHandler } from './src/middlewares/errorHandler.js';
@@ -39,6 +40,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/contacts', contactsRoutes);
 app.use('/api/sliders', slidersRoutes);
 app.use('/api/portfolio', portfolioRoutes);
+app.use('/api/skills', skillsRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

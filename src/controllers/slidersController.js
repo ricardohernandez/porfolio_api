@@ -2,9 +2,36 @@ import pool from '../config/database.js';
 
 export const getAllSliders = async (req, res, next) => {
   try {
-    const result = await pool.query(
-      'SELECT * FROM sliders WHERE is_active = TRUE ORDER BY display_order ASC'
-    );
+    const { search, sortBy = 'display_order', sortOrder = 'ASC' , is_active = null } = req.query;
+    let query = 'SELECT * FROM sliders';
+    let params = [];
+
+    if (search) {
+      const searchTerm = `%${search}%`;
+      query += ` WHERE title ILIKE $1 
+                 OR heading ILIKE $1 
+                 OR slider_key ILIKE $1`;
+      params.push(searchTerm);
+    }
+
+    if (is_active !== null && is_active !== undefined && is_active !== '') {
+      const isActiveBoolean = is_active === 'true';
+      if (params.length === 0) {
+        query += ' WHERE is_active = $1';
+      } else {
+        query += ` AND is_active = $${params.length + 1}`;
+      }
+      params.push(isActiveBoolean);
+    }
+
+    // Validar que sortBy sea un campo válido (seguridad)
+    const validFields = ['id', 'slider_key', 'title', 'heading', 'is_active', 'display_order', 'created_at'];
+    const field = validFields.includes(sortBy) ? sortBy : 'display_order';
+    const order = sortOrder?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+
+    query += ` ORDER BY ${field} ${order}`;
+
+    const result = await pool.query(query, params);
     res.json(result.rows);
   } catch (error) {
     next(error);
