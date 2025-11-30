@@ -5,6 +5,9 @@ import morgan from 'morgan';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+// Cargar variables de entorno lo antes posible
+dotenv.config();
+
 // Import routes
 import authRoutes from './src/routes/auth.routes.js';
 import contactsRoutes from './src/routes/contacts.routes.js';
@@ -18,16 +21,17 @@ import { errorHandler } from './src/middlewares/errorHandler.js';
 // Import database
 import pool from './src/config/database.js';
 
-dotenv.config();
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT;
 
-console.log('🚀 Intentando iniciar en puerto:', PORT);
-console.log('📌 NODE_ENV:', process.env.NODE_ENV);
+// Usar puerto de Railway o fallback a 8080 (seguro)
+const PORT = process.env.PORT || 8080;
+
+console.log('🚀 Iniciando servidor...');
+console.log('   PORT:', PORT);
+console.log('   NODE_ENV:', process.env.NODE_ENV);
 
 // Configurar CORS Origins desde variable de entorno
 let corsOrigins = [
