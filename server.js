@@ -37,10 +37,31 @@ const corsOrigins = process.env.CORS_ORIGIN
 console.log('📋 CORS Origins:', corsOrigins);
 console.log('🌍 NODE_ENV:', process.env.NODE_ENV);
 
+// Función para validar origen (soporta wildcards para Vercel)
+const validateOrigin = (origin) => {
+  // Permitir requests sin origin (como requests desde mobile apps)
+  if (!origin) return true;
+  
+  // Si está en la lista, permitir
+  if (corsOrigins.includes(origin)) return true;
+  
+  // En desarrollo permitir localhost
+  if (process.env.NODE_ENV !== 'production' && origin.includes('localhost')) return true;
+  
+  // Permitir cualquier subdominio de vercel.app en producción
+  if (process.env.NODE_ENV === 'production' && origin.includes('vercel.app')) {
+    console.log('✅ Permitiendo origen Vercel:', origin);
+    return true;
+  }
+  
+  console.log('❌ Bloqueando origen no permitido:', origin);
+  return false;
+};
+
 // En desarrollo permitir todos, en producción ser restrictivo
 const corsOptions = process.env.NODE_ENV === 'production'
   ? {
-      origin: corsOrigins,
+      origin: validateOrigin,
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization']
