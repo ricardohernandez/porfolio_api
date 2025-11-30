@@ -51,6 +51,11 @@ CREATE TABLE IF NOT EXISTS portfolio_projects (
     featured BOOLEAN DEFAULT FALSE,
     status VARCHAR(50) DEFAULT 'published',
     display_order INTEGER DEFAULT 0,
+    challenge TEXT,
+    solution TEXT,
+    impact TEXT,
+    features JSONB,
+    gradient VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
