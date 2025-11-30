@@ -29,53 +29,34 @@ const PORT = process.env.PORT;
 console.log('🚀 Intentando iniciar en puerto:', PORT);
 console.log('📌 NODE_ENV:', process.env.NODE_ENV);
 
-// Middleware
-const corsOrigins = process.env.CORS_ORIGIN 
-  ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
-  : [
-      'http://localhost:5173', // Portfolio
-      'http://localhost:5174', // Portfolio Admin
-      'http://localhost:5001'  // Backend local
-    ];
+// Configurar CORS Origins desde variable de entorno
+let corsOrigins = [
+  'http://localhost:5173',     // Portfolio local
+  'http://localhost:5174',     // Admin local
+  'http://localhost:5001'      // Backend local
+];
 
-console.log('📋 CORS Origins:', corsOrigins);
-console.log('🌍 NODE_ENV:', process.env.NODE_ENV);
+// En producción agregar dominios de Vercel y Railway
+if (process.env.NODE_ENV === 'production' && process.env.CORS_ORIGIN) {
+  const productionOrigins = process.env.CORS_ORIGIN
+    .split(',')
+    .map(origin => origin.trim())
+    .filter(origin => origin.length > 0);
+  corsOrigins = [...corsOrigins, ...productionOrigins];
+}
 
-// Función para validar origen (soporta wildcards para Vercel)
-const validateOrigin = (origin) => {
-  // Permitir requests sin origin (como requests desde mobile apps)
-  if (!origin) return true;
-  
-  // Si está en la lista, permitir
-  if (corsOrigins.includes(origin)) return true;
-  
-  // En desarrollo permitir localhost
-  if (process.env.NODE_ENV !== 'production' && origin.includes('localhost')) return true;
-  
-  // Permitir cualquier subdominio de vercel.app en producción
-  if (process.env.NODE_ENV === 'production' && origin.includes('vercel.app')) {
-    console.log('✅ Permitiendo origen Vercel:', origin);
-    return true;
-  }
-  
-  console.log('❌ Bloqueando origen no permitido:', origin);
-  return false;
+console.log('📋 CORS Origins configurados:', corsOrigins);
+
+// Configuración CORS para Railway y desarrollo
+const corsOptions = {
+  origin: corsOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200
 };
 
-// En desarrollo permitir todos, en producción ser restrictivo
-const corsOptions = process.env.NODE_ENV === 'production'
-  ? {
-      origin: validateOrigin,
-      credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization']
-    }
-  : {
-      origin: true, // En desarrollo permitir todos
-      credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization']
-    };
+console.log('✅ CORS configurado para:', corsOrigins);
 
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '50mb' }));
