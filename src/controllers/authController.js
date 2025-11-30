@@ -6,6 +6,8 @@ export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
+    console.log('🔐 Login attempt for:', email);
+
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password are required' });
     }
@@ -14,20 +16,28 @@ export const login = async (req, res, next) => {
     const user = result.rows[0];
 
     if (!user) {
+      console.log('❌ User not found:', email);
       return res.status(401).json({ message: 'Invalid credentials' });
     }
+
+    console.log('✅ User found:', user.email);
 
     const isValidPassword = await bcrypt.compare(password, user.password);
 
     if (!isValidPassword) {
+      console.log('❌ Invalid password for:', email);
       return res.status(401).json({ message: 'Invalid credentials' });
     }
+
+    console.log('✅ Password valid');
 
     const token = jwt.sign(
       { id: user.id, email: user.email, name: user.name },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
     );
+
+    console.log('✅ Token generated');
 
     res.json({
       token,
@@ -38,6 +48,7 @@ export const login = async (req, res, next) => {
       }
     });
   } catch (error) {
+    console.error('🔥 Login error:', error.message);
     next(error);
   }
 };

@@ -19,12 +19,16 @@ const pool = process.env.DATABASE_URL
       password: process.env.DB_PASSWORD || '',
     });
 
+console.log('🗄️  Database config loaded');
+console.log('   Using:', process.env.DATABASE_URL ? 'DATABASE_URL (Railway)' : 'Individual vars');
+console.log('   NODE_ENV:', process.env.NODE_ENV);
+
 pool.on('connect', () => {
   console.log('✅ Connected to PostgreSQL database');
 });
 
 pool.on('error', (err) => {
-  console.error('❌ PostgreSQL connection error:', err);
+  console.error('❌ PostgreSQL connection error:', err.message);
 });
 
 export default pool;
