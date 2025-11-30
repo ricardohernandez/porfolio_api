@@ -61,14 +61,39 @@ CREATE TABLE IF NOT EXISTS portfolio_projects (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Create skills table (icon como TEXT para soportar SVG paths largos)
+CREATE TABLE IF NOT EXISTS skills (
+    id SERIAL PRIMARY KEY,
+    category VARCHAR(100) NOT NULL,
+    color VARCHAR(100),
+    items JSONB NOT NULL DEFAULT '[]'::jsonb,
+    icon TEXT,
+    display_order INTEGER DEFAULT 0,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create skill_items table
+CREATE TABLE IF NOT EXISTS skill_items (
+    id SERIAL PRIMARY KEY,
+    skill_id INTEGER NOT NULL REFERENCES skills(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    display_order INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create indexes
-CREATE INDEX idx_contacts_status ON contacts(status);
-CREATE INDEX idx_contacts_created_at ON contacts(created_at DESC);
-CREATE INDEX idx_sliders_active ON sliders(is_active);
-CREATE INDEX idx_sliders_order ON sliders(display_order);
-CREATE INDEX idx_portfolio_status ON portfolio_projects(status);
-CREATE INDEX idx_portfolio_featured ON portfolio_projects(featured);
-CREATE INDEX idx_portfolio_category ON portfolio_projects(category);
+CREATE INDEX IF NOT EXISTS idx_contacts_status ON contacts(status);
+CREATE INDEX IF NOT EXISTS idx_contacts_created_at ON contacts(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_sliders_active ON sliders(is_active);
+CREATE INDEX IF NOT EXISTS idx_sliders_order ON sliders(display_order);
+CREATE INDEX IF NOT EXISTS idx_portfolio_status ON portfolio_projects(status);
+CREATE INDEX IF NOT EXISTS idx_portfolio_featured ON portfolio_projects(featured);
+CREATE INDEX IF NOT EXISTS idx_portfolio_category ON portfolio_projects(category);
+CREATE INDEX IF NOT EXISTS idx_skills_active ON skills(is_active);
+CREATE INDEX IF NOT EXISTS idx_skill_items_skill_id ON skill_items(skill_id);
 
 -- Triggers for updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -91,21 +116,12 @@ CREATE TRIGGER update_sliders_updated_at BEFORE UPDATE ON sliders
 CREATE TRIGGER update_portfolio_updated_at BEFORE UPDATE ON portfolio_projects
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Seed data (password is 'admin123' - hash generado con bcrypt)
-INSERT INTO users (email, password, name) VALUES
-('ricardo.hernandez.esp@gmail.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Ricardo Hernández')
-ON CONFLICT (email) DO NOTHING;
+CREATE TRIGGER update_skills_updated_at BEFORE UPDATE ON skills
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-INSERT INTO sliders (slider_key, title, heading, highlight_text, description, roles, proposal_text, is_active, display_order) VALUES
-('hero', 'Ricardo Hernández', 'Full Stack Developer', 'Creando experiencias digitales', 'Desarrollador con experiencia en React, Node.js y PostgreSQL', '["Frontend Developer", "Backend Developer", "UI/UX Designer"]'::jsonb, 'Transformo ideas en soluciones digitales', TRUE, 1),
-('about', 'Sobre Mí', 'Pasión por el código', 'Clean Code', 'Me especializo en crear aplicaciones web modernas y escalables', '["React", "Node.js", "PostgreSQL", "MongoDB"]'::jsonb, 'Siempre aprendiendo nuevas tecnologías', TRUE, 2)
-ON CONFLICT (slider_key) DO NOTHING;
+CREATE TRIGGER update_skill_items_updated_at BEFORE UPDATE ON skill_items
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-INSERT INTO portfolio_projects (title, description, long_description, image_url, technologies, demo_url, github_url, category, featured, status, display_order) VALUES
-('E-commerce Tintanic', 'Tienda online de papelería', 'Plataforma de e-commerce moderna con carrito de compras y pasarela de pagos', '/images/tintanic.jpg', '["React", "Tailwind CSS", "Vite"]'::jsonb, 'https://tintanic.vercel.app', 'https://github.com/usuario/tintanic', 'E-commerce', TRUE, 'published', 1),
-('Portfolio Admin', 'Panel administrativo para portfolio', 'Sistema de gestión de contenido para administrar proyectos, slider y contactos', '/images/admin.jpg', '["React", "Node.js", "PostgreSQL", "JWT"]'::jsonb, NULL, 'https://github.com/usuario/portfolio-admin', 'Admin Panel', TRUE, 'published', 2),
-('React Practice', 'Aplicación de práctica React', 'Proyecto educativo con implementación de hooks, pagination, search y themes', '/images/practice.jpg', '["React", "GitHub API", "LocalStorage"]'::jsonb, NULL, 'https://github.com/usuario/react-practice', 'Learning', FALSE, 'published', 3);
+-- Note: Seed data should be added using insert-real-data.sql
+-- DO NOT add INSERT statements here
 
-INSERT INTO contacts (name, email, phone, message, is_read, status) VALUES
-('Juan Pérez', 'juan@example.com', '+56912345678', '¡Hola! Me interesa tu trabajo', FALSE, 'pending'),
-('María García', 'maria@example.com', '+56987654321', 'Necesito cotización para un proyecto', TRUE, 'responded');
