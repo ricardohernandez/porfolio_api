@@ -24,14 +24,16 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors({
-  origin: (origin, callback) => {
-    const allowedOrigins = [
+const corsOrigins = process.env.CORS_ORIGIN 
+  ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
+  : [
       'http://localhost:5173', // Portfolio
       'http://localhost:5174'  // Portfolio Admin
     ];
-    
-    if (!origin || allowedOrigins.includes(origin)) {
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || corsOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
