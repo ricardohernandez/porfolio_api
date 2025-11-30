@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS portfolio_projects (
     solution TEXT,
     impact TEXT,
     features JSONB,
+    tags JSONB,
     gradient VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
