@@ -15,6 +15,9 @@ import skillsRoutes from './src/routes/skills.js';
 // Import middleware
 import { errorHandler } from './src/middlewares/errorHandler.js';
 
+// Import database
+import pool from './src/config/database.js';
+
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
