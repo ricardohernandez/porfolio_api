@@ -9,10 +9,16 @@ export const login = async (req, res, next) => {
     console.log('🔐 Login attempt for:', email);
 
     if (!email || !password) {
+      console.log('❌ Missing email or password');
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    console.log('🔍 Querying database...');
+    const result = await Promise.race([
+      pool.query('SELECT * FROM users WHERE email = $1', [email]),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Database query timeout')), 5000))
+    ]);
+    
     const user = result.rows[0];
 
     if (!user) {
@@ -30,6 +36,11 @@ export const login = async (req, res, next) => {
     }
 
     console.log('✅ Password valid');
+
+    if (!process.env.JWT_SECRET) {
+      console.error('🔥 JWT_SECRET not set!');
+      return res.status(500).json({ message: 'Server configuration error' });
+    }
 
     const token = jwt.sign(
       { id: user.id, email: user.email, name: user.name },
@@ -49,7 +60,8 @@ export const login = async (req, res, next) => {
     });
   } catch (error) {
     console.error('🔥 Login error:', error.message);
-    next(error);
+    console.error('📋 Error stack:', error.stack);
+    res.status(500).json({ message: 'Login failed: ' + error.message });
   }
 };
 

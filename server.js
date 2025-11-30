@@ -93,6 +93,24 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Test BD connection
+app.get('/api/test-db', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT NOW()');
+    res.json({ 
+      status: 'ok', 
+      database: 'connected',
+      time: result.rows[0]
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      status: 'error', 
+      database: 'disconnected',
+      error: error.message 
+    });
+  }
+});
+
 // Error handler (must be last)
 app.use(errorHandler);
 
