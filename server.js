@@ -34,6 +34,9 @@ const corsOrigins = process.env.CORS_ORIGIN
       'http://localhost:5001'  // Backend local
     ];
 
+console.log('📋 CORS Origins:', corsOrigins);
+console.log('🌍 NODE_ENV:', process.env.NODE_ENV);
+
 // En desarrollo permitir todos, en producción ser restrictivo
 const corsOptions = process.env.NODE_ENV === 'production'
   ? {
