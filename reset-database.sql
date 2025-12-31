@@ -114,21 +114,27 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+DROP TRIGGER IF EXISTS update_users_updated_at ON users;
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_contacts_updated_at ON contacts;
 CREATE TRIGGER update_contacts_updated_at BEFORE UPDATE ON contacts
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_sliders_updated_at ON sliders;
 CREATE TRIGGER update_sliders_updated_at BEFORE UPDATE ON sliders
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_portfolio_updated_at ON portfolio_projects;
 CREATE TRIGGER update_portfolio_updated_at BEFORE UPDATE ON portfolio_projects
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_skills_updated_at ON skills;
 CREATE TRIGGER update_skills_updated_at BEFORE UPDATE ON skills
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_skill_items_updated_at ON skill_items;
 CREATE TRIGGER update_skill_items_updated_at BEFORE UPDATE ON skill_items
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 

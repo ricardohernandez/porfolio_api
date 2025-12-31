@@ -37,16 +37,21 @@ console.log('   NODE_ENV:', process.env.NODE_ENV);
 let corsOrigins = [
   'http://localhost:5173',     // Portfolio local
   'http://localhost:5174',     // Admin local
-  'http://localhost:5001'      // Backend local
+  'http://localhost:8081',     // Expo Android
+  'http://localhost:8082',     // Expo Metro bundler
+  'http://localhost:8083',     // Expo Metro bundler
+  'http://192.168.1.100:8081', // LAN access
+  'http://192.168.100.7:5001', // Backend local IP
+  'http://192.168.100.7:8083'  // Expo app on mobile
 ];
 
-// En producción agregar dominios de Vercel y Railway
-if (process.env.NODE_ENV === 'production' && process.env.CORS_ORIGIN) {
-  const productionOrigins = process.env.CORS_ORIGIN
+// Agregar orígenes adicionales desde variable de entorno
+if (process.env.CORS_ORIGIN) {
+  const additionalOrigins = process.env.CORS_ORIGIN
     .split(',')
     .map(origin => origin.trim())
     .filter(origin => origin.length > 0);
-  corsOrigins = [...corsOrigins, ...productionOrigins];
+  corsOrigins = [...corsOrigins, ...additionalOrigins];
 }
 
 console.log('📋 CORS Origins configurados:', corsOrigins);
